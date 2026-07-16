@@ -1,0 +1,9 @@
+{
+  "protocol": "LBH_BINARY_V1",
+  "encoding": "UTF-8",
+  "supported_languages": ["gujarati", "binary_hormigas"],
+  "meta": {
+    "desc": "Configuración de soberanía para bloques LBH en Gujarati"
+  }
+}
+SHA2-256(stdin)= d36b2b2ae03334b8abbd99079591abb8b226165f722887d2d42889ccb18df4d5

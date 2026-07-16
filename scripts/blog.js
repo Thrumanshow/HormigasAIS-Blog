@@ -1,29 +1,36 @@
-// Motor del Blog HormigasAIS
-document.addEventListener('DOMContentLoaded', () => {
-  const feed = document.getElementById('feed');
-  
-  // Registro de artículos publicados (lectura de directorio estática)
-  const posts = [
-    'uroboro-tecnologico.html' // Aquí agregarás futuros artículos
-  ];
 
-  // Cargar cada artículo de forma asíncrona
-  posts.forEach(file => {
-    fetch(`posts/${file}`)
-      .then(res => {
-        if (!res.ok) throw new Error(`Error al cargar ${file}`);
-        return res.text();
-      })
-      .then(html => {
-        const article = document.createElement('article');
-        article.className = 'post-card';
-        // Estilo base alineado a tu tarjeta principal (Soberano)
-        article.style.cssText = 'border: 1px solid #333; padding: 1.5rem; margin-bottom: 2rem; border-radius: 8px; background: #111; transition: border-color 0.3s;';
-        article.onmouseover = () => article.style.borderColor = '#f5c518';
-        article.onmouseout = () => article.style.borderColor = '#333';
-        article.innerHTML = html;
-        feed.appendChild(article);
-      })
-      .catch(err => console.error(err));
-  });
+document.addEventListener("DOMContentLoaded", async () => {
+    const feed = document.getElementById('feed');
+    // ACTUALIZA ESTA LISTA CADA VEZ QUE SUBAS UN NUEVO POST
+    const posts = [
+        'uroboro-tecnologico.html', 
+        'protocolo-lbh-arquitectura.html', 
+        'perfil_cto_cristhiam.html'
+    ];
+    
+    for (const file of posts) {
+        try {
+            const response = await fetch(`posts/${file}`);
+            if (!response.ok) continue;
+            const text = await response.text();
+            
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(text, 'text/html');
+            const title = doc.querySelector('h1')?.innerText || 'Sin título';
+            const firmaMatch = text.match(/<code>([a-f0-9]{32})/);
+            const firma = firmaMatch ? firmaMatch[1] + '...' : 'Sin firma';
+
+            const card = document.createElement('div');
+            card.className = 'post-card';
+            card.innerHTML = `
+                <div class="post-meta">NODO A16 | ${file}</div>
+                <div class="post-title">${title}</div>
+                <div class="post-excerpt">Firma soberana: <code>${firma}</code></div>
+                <a href="posts/${file}" style="color:#f5c518; font-size:0.7rem;">[ACCEDER AL NODO]</a>
+            `;
+            feed.appendChild(card);
+        } catch (e) {
+            console.error("Error cargando post:", e);
+        }
+    }
 });

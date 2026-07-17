@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const feed = document.getElementById('feed');
     const posts = [
         'uroboro-tecnologico.html',
+        'protocolo-lbh-arquitectura.html',
         'arquitectura-soberana-agentes-autonomos.html'
     ];
 

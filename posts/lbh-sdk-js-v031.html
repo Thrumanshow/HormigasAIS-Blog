@@ -1,36 +1,23 @@
-<article style="background:#0a0a0a; color:#e8e8e8; padding:2rem; border-radius:12px; border:1px solid #222;">
-  <span style="font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 1px;">RELEASE — SDK HormigasAIS</span>
-  <h1 style="color: #f5c518; margin: 1rem 0 1.5rem 0; font-size: 1.7rem;">LBH-SDK-JS v0.3.1: Modularidad, Tests de Conformidad y Preparación ante cambios de npm</h1>
-  
-  <p style="color:#888; font-size:0.85rem;">19 de julio de 2026 | Nodo A16-SanMiguel-SV</p>
-
-  <h2 style="color: #f5c518; border-left: 4px solid #f5c518; padding-left: 14px;">1. ¿Qué cambia en esta versión?</h2>
-  <p>La versión <strong>0.3.1</strong> reorganiza el SDK en una estructura modular clara, añade suite completa de tests de conformidad con <code>LBH_SPEC_v2.0</code> y prepara el paquete para los próximos cambios de seguridad en npm v12.</p>
-
-  <h3 style="color: #f5c518;">Mejoras principales</h3>
-  <ul style="color:#ccc;">
-    <li>Estructura modular (<code>src/constants.js</code>, <code>src/exceptions.js</code>, <code>src/index.js</code>)</li>
-    <li>25 tests automáticos de conformidad</li>
-    <li>Manejo seguro de HMAC-SHA256 (timing-safe)</li>
-    <li>Mejor documentación y preparación para Trusted Publishing</li>
-  </ul>
-
-  <h2 style="color: #f5c518; border-left: 4px solid #f5c518; padding-left: 14px;">2. Instalación</h2>
-  <pre style="background:#111; padding:1.2rem; border-radius:8px; color:#0f0;"><code>npm install lbh-sdk-hormigasais</code></pre>
-
-  <h2 style="color: #f5c518; border-left: 4px solid #f5c518; padding-left: 14px;">3. Ejemplo: TOTP + LBH</h2>
-  <pre style="background:#111; padding:1.2rem; border-radius:8px; color:#ddd; font-size:0.9rem;"><code>// Generar TOTP + sellar en paquete LBH
-const { frame, totpCode } = createSecureLBHFrame('2fa_verify');
-
-// Verificar
-const result = verifyLBHWithTotp(frame, userToken);</code></pre>
-
-  <div style="margin: 3rem 0; padding: 1.8rem; background: #111; border-left: 5px solid #f5c518; border-radius: 8px;">
-    <strong>🔐 Firma de validación LBH:</strong><br>
-    <code style="color:#0f0; word-break:break-all;">VALIDADO_SDK_JS_0.3.1_20260719_A16_CLHQ</code>
-  </div>
-
-  <p style="color:#888; text-align:center; margin-top:2rem;">
-    Emitido desde Nodo A16-SanMiguel-SV | Verificado bajo MANIFEST_TOKEN.lbh v2
-  </p>
-</article>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../assets/style.css">
+    <style>
+        /* Encapsulamiento forzado para evitar conflictos de plantilla */
+        .article-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #0a0a0a !important; /* Forzar fondo */
+        }
+    </style>
+</head>
+<body>
+    <div class="article-container">
+        <!-- AQUÍ TU CONTENIDO -->
+        <h1>LBH-SDK-JS v0.3.1: Modularidad...</h1>
+        <p>Contenido del artículo...</p>
+    </div>
+</body>
+</html>

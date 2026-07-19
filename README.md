@@ -40,6 +40,8 @@ python3 -m http.server 8080
 ```
 
 ### Enlaces importantes
+
+- [CHANGELOG](./CHANGELOG.md)
 - [Sitio principal](https://hormigasais.com)
 - [Documentación](https://docs.hormigasais.com)
 - [Protocolo LBH](https://github.com/Thrumanshow/Lenguaje-Binario-HormigasAIS-)

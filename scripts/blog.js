@@ -4,8 +4,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const posts = [
     'uroboro-tecnologico.html',
-    'protocolo-lbh-arquitectura.html',
-    'arquitectura-soberana-agentes-autonomos.html'
+    'arquitectura-soberana-agentes-autonomos.html',
+    'lbh-sdk-js-v031.html'
   ];
 
   for (const file of posts) {
@@ -21,11 +21,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       const title = titleEl ? titleEl.textContent.trim() : 'Sin título';
 
       const excerptEl = doc.querySelector('p');
-      let excerpt = excerptEl ? excerptEl.textContent.trim().slice(0, 140) : '';
+      let excerpt = excerptEl ? excerptEl.textContent.trim().slice(0, 160) : '';
       if (excerpt) excerpt += '...';
-
-      const firmaMatch = text.match(/[a-f0-9]{32,64}/i);
-      const firma = firmaMatch ? firmaMatch[0].slice(0, 24) + '...' : 'Sin firma';
 
       const card = document.createElement('div');
       card.className = 'post-card';
@@ -33,15 +30,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         <div class="post-meta">NODO A16 · ${file.replace('.html','')}</div>
         <div class="post-title">${title}</div>
         <div class="post-excerpt">${excerpt}</div>
-        <div class="post-firma"><code>${firma}</code></div>
-        
-        <div style="margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid #333; display: flex; gap: 12px; justify-content: space-between; align-items: center;">
+        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #333; display:flex; justify-content:space-between;">
           <a href="posts/${file}" style="color:#f5c518; font-weight:700;">Leer artículo →</a>
-          
-          <button onclick="compartirArticulo('${title}', '${file}')" 
-                  style="padding: 8px 16px; background:#f5c518; color:#000; border:none; border-radius:6px; font-size:0.85rem; cursor:pointer;">
-            🚀 Compartir
-          </button>
+          <button onclick="compartirArticulo('${title}', '${file}')" style="padding:8px 16px; background:#f5c518; color:#000; border:none; border-radius:6px; cursor:pointer;">🚀 Compartir</button>
         </div>
       `;
       feed.appendChild(card);
@@ -51,24 +42,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-// Función global de compartir
 window.compartirArticulo = async (title, file) => {
   const url = window.location.origin + window.location.pathname.replace('index.html','') + 'posts/' + file;
-  
-  const shareData = {
-    title: title,
-    text: "Artículo de HormigasAIS - Soberanía Digital",
-    url: url
-  };
-
+  const shareData = { title: title, text: "Artículo de HormigasAIS", url: url };
   try {
-    if (navigator.share) {
-      await navigator.share(shareData);
-    } else {
+    if (navigator.share) await navigator.share(shareData);
+    else {
       await navigator.clipboard.writeText(url);
-      alert("✅ Enlace copiado al portapapeles");
+      alert("✅ Enlace copiado");
     }
-  } catch (err) {
-    console.error("Error al compartir:", err);
-  }
+  } catch (err) {}
 };

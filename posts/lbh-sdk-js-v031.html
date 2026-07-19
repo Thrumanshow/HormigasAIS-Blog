@@ -1,0 +1,46 @@
+<div style="font-family: 'Syne', sans-serif; color: #e8e8e8;">
+  <span style="font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 1px;">RELEASE — SDK HormigasAIS</span>
+  <h1 style="color: #f5c518; margin-top: 0.5rem; margin-bottom: 1rem; font-size: 1.6rem;">LBH-SDK-JS v0.3.1: Modularidad, Tests de Conformidad y Preparación ante cambios de npm</h1>
+  
+  <p class="meta-top" style="color:#888; font-size:0.8rem;">19 de julio de 2026 | Nodo A16-SanMiguel-SV</p>
+
+  <h2 style="color: #f5c518; border-left: 3px solid #f5c518; padding-left: 12px;">1. ¿Qué cambia en esta versión?</h2>
+  <p>La versión <strong>0.3.1</strong> reorganiza el SDK en una estructura modular clara, añade suite completa de tests de conformidad con <code>LBH_SPEC_v2.0</code> y prepara el paquete para los próximos cambios de seguridad en npm v12.</p>
+
+  <h3 style="color: #f5c518;">Mejoras principales</h3>
+  <ul>
+    <li>Estructura modular (<code>src/constants.js</code>, <code>src/exceptions.js</code>, <code>src/index.js</code>)</li>
+    <li>25 tests automáticos de conformidad</li>
+    <li>Manejo seguro de HMAC-SHA256 (timing-safe)</li>
+    <li>Mejor documentación y preparación para Trusted Publishing</li>
+  </ul>
+
+  <h2 style="color: #f5c518; border-left: 3px solid #f5c518; padding-left: 12px;">2. Instalación</h2>
+  <pre style="background:#111; padding:1rem; border-radius:8px; overflow-x:auto;"><code>npm install lbh-sdk-hormigasais</code></pre>
+
+  <h2 style="color: #f5c518; border-left: 3px solid #f5c518; padding-left: 12px;">3. Ejemplo: TOTP + LBH</h2>
+  <p>Integración de autenticación de dos factores con el protocolo LBH:</p>
+
+  <pre style="background:#111; padding:1rem; border-radius:8px; overflow-x:auto; font-size:0.85rem;"><code>// Generar TOTP + sellar en paquete LBH
+const { frame, totpCode } = createSecureLBHFrame('2fa_verify');
+
+// Verificar
+const result = verifyLBHWithTotp(frame, userToken);</code></pre>
+
+  <h2 style="color: #f5c518; border-left: 3px solid #f5c518; padding-left: 12px;">4. Enlaces oficiales</h2>
+  <p>
+    • <a href="https://github.com/Thrumanshow/lbh-sdk-js" style="color:#f5c518;">Repositorio GitHub</a><br>
+    • <a href="https://www.npmjs.com/package/lbh-sdk-hormigasais" style="color:#f5c518;">npm package</a><br>
+    • <a href="https://github.com/Thrumanshow/lbh-sdk-js/releases/tag/v0.3.1" style="color:#f5c518;">Release v0.3.1</a>
+  </p>
+
+  <div style="margin-top: 3rem; padding: 1.5rem; background: #111; border-left: 4px solid #f5c518; border-radius: 6px;">
+    <strong>🔐 Firma de validación LBH:</strong><br>
+    <code>VALIDADO_SDK_JS_0.3.1_20260719_A16_CLHQ</code>
+  </div>
+
+  <p style="margin-top: 2rem; font-size: 0.9rem; color: #888;">
+    Emitido desde Nodo A16-SanMiguel-SV | Verificado bajo MANIFEST_TOKEN.lbh v2<br>
+    <strong>HormigasAIS — Soberanía Digital</strong>
+  </p>
+</div>

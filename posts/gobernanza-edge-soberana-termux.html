@@ -17,39 +17,45 @@
   <h1>Gobernanza Edge Soberana: Administrando Workers sin Wrangler en Termux</h1>
   <div class="meta">Publicado por Cristhiam Leonardo Hernández Quiñonez (CLHQ) · Agosto 2026 · Nodo A16-SanMiguel-SV</div>
 
-  <p>En el desarrollo tradicional para Cloudflare Workers, la industria asume la necesidad de entornos x86_64 o CLI oficiales como <code>wrangler</code>. Sin embargo, en entornos móviles de borde (Android/Termux ARM64), el flujo estándar falla debido a incompatibilidades de enlazado dinámico en las capas inferiores del sistema operativo.</p>
+  <p>En el desarrollo tradicional para Cloudflare Workers, la industria asume la necesidad de CLI oficiales como <code>wrangler</code>. Sin embargo, en entornos móviles de borde (Android/Termux ARM64), la emulación local de miniflare/workerd falla debido a la ausencia de entorno <code>glibc</code>.</p>
 
-  <h2>1. El Cuyo Técnico: Incompatibilidad Bionic vs. glibc</h2>
-  <p>El CLI oficial de Wrangler descarga binarios precompilados del motor <code>workerd</code> (basado en V8). Estos binarios están construidos para distribuciones Linux estándar vinculadas a <strong>GNU <code>glibc</code></strong>. Termux opera sobre el entorno nativo de Android, cuya biblioteca C es <strong><code>bionic</code></strong>.</p>
+  <h2>1. Causa Raíz: Incompatibilidad Bionic vs. glibc</h2>
+  <p>Al ejecutar emulación local (<code>npx wrangler dev</code> v3.x bajo Node.js v20+ ARM64), Wrangler intenta arrancar el binario precompilado de <code>workerd</code>. Al estar enlazado dinámicamente contra GNU <code>glibc</code>, la ejecución colapsa en la biblioteca C nativa de Android (<strong><code>bionic</code></strong>).</p>
 
   <div class="callout">
-    <strong>Error característico en Termux:</strong><br>
+    <strong>Error de emulación local en Termux ARM64:</strong><br>
     <code>$ npx wrangler dev</code><br>
     <code>[ERROR] Failed to start workerd: Error: /data/data/com.termux/files/usr/lib/libc.so: version 'GLIBC_2.34' not found</code>
   </div>
 
-  <h2>2. Desacoplamiento vía API REST v4 (Multipart Upload)</h2>
-  <p>Para desplegar código en producción sin depender de Wrangler, consumimos directamente el endpoint <code>/content</code> de la API REST v4 de Cloudflare utilizando peticiones <code>multipart/form-data</code> con metadatos de módulo ESM.</p>
+  <h2>2. Despliegue Directo vía API REST v4 (Multipart)</h2>
+  <p>Eludimos la necesidad del entorno de emulación local subiendo el bundle JS directamente al plano de control de Cloudflare mediante la API v4 estructurada en <code>multipart/form-data</code>.</p>
 
   <pre>
-# A. Subida del bundle del Worker (ES Modules / main_module)
+# A. Subida del bundle del Worker (ES Modules)
 curl --fail-with-body --silent --show-error \
   -X PUT "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/workers/scripts/$CF_WORKER_NAME/content" \
   -H "Authorization: Bearer $CF_API_TOKEN" \
   -F 'metadata={"main_module":"worker.js"};type=application/json' \
   -F 'worker.js=@dist/worker.js;type=application/javascript+module'
 
-# B. Inyección atómica de secretos al Edge (JSON Body)
+# B. Inyección atómica y segura de secretos al Edge (evitando interpolación directa)
+SECRET_PAYLOAD=$(jq -n --arg val "$VALUE" '{"name":"MASTER_SEAL_KEY","text":$val,"type":"secret_text"}')
+
 curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/workers/scripts/$CF_WORKER_NAME/secrets" \
   -H "Authorization: Bearer $CF_API_TOKEN" \
   -H "Content-Type: application/json" \
-  --data "{\"name\":\"MASTER_SEAL_KEY\",\"text\":\"$VALUE\",\"type\":\"secret_text\"}"
+  --data "$SECRET_PAYLOAD"
   </pre>
 
-  <h2>3. Aislamiento Criptográfico en Dispositivos Móviles</h2>
-  <p>En lugar de delegar el manejo de claves secretas a entornos de desarrollo de terceros, las claves maestras (<code>LBH_SECRET</code>) se resguardan localmente en <code>~/.hormigas_secrets</code> protegido con permisos <code>0600</code> (POSIX DAC) y bajo el sandboxing estricto por UID de Android. Si bien no constituye un HSM basado en hardware (TEE), este esquema garantiza que la firma criptográfica permanezca bajo control local directo antes de su transmisión cifrada al Edge.</p>
+  <h2>3. Modelo Criptográfico: Firma Local vs. Verificación en Edge</h2>
+  <p>Es indispensable distinguir entre la custodia de llaves y la firma de paquetes:</p>
+  <ul>
+    <li><strong>Firma Local (Nodo Soberano):</strong> Los payloads LBH se firman criptográficamente dentro del dispositivo Termux utilizando la clave privada almacenada en <code>~/.hormigas_secrets</code> (protegido con permisos <code>0600</code> y sandboxing UID de Android).</li>
+    <li><strong>Verificación Edge (Cloudflare Worker):</strong> El Worker en el Edge almacena únicamente el secreto de verificación para validar la autenticidad del paquete recibido antes de procesarlo, manteniendo la clave de origen aislada en el nodo.</li>
+  </ul>
 
   <hr style="border-color:#222; margin-top:2rem;">
-  <p style="font-size:0.8rem; color:#666;">CERT::LBH-BLOG-POST-01-REV2 | <a href="https://hormigasais.com" style="color:#888;">hormigasais.com</a></p>
+  <p style="font-size:0.8rem; color:#666;">CERT::LBH-BLOG-POST-01-REV3 | <a href="https://hormigasais.com" style="color:#888;">hormigasais.com</a></p>
 </body>
 </html>

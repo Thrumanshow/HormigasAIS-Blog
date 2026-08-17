@@ -5,36 +5,61 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gobernanza Edge Soberana desde Termux | Blog HormigasAIS</title>
   <style>
-    body { background: #0a0a0a; color: #e8e8e8; font-family: 'Space Mono', monospace; padding: 2rem; max-width: 800px; margin: 0 auto; }
-    h1 { color: #f5c518; }
-    code { color: #00ff9f; background: #111; padding: 0.2rem 0.4rem; border-radius: 4px; }
-    pre { background: #111; border: 1px solid #222; padding: 1rem; border-radius: 8px; overflow-x: auto; color: #f5c518; font-size: 0.85rem; }
-    img { max-width: 100%; height: auto; border-radius: 8px; border: 1px solid #222; margin: 1.5rem 0; display: block; }
-    .meta { color: #666; font-size: 0.8rem; margin-bottom: 2rem; }
-    .callout { background: #181818; border-left: 3px solid #f5c518; padding: 0.8rem; margin: 1rem 0; font-size: 0.9rem; }
+    :root {
+      --bg: #0a0a0a;
+      --card-bg: #121212;
+      --border: #222222;
+      --accent: #f5c518;
+      --code-green: #00ff9f;
+      --text: #e8e8e8;
+      --text-muted: #888888;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Space Mono', monospace, -apple-system, sans-serif;
+      padding: 2rem 1rem;
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+    h1 { color: var(--accent); font-size: 1.8rem; margin-bottom: 0.5rem; line-height: 1.3; }
+    h2 { color: var(--accent); font-size: 1.3rem; margin-top: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; }
+    .meta { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; }
+    img.main-img { max-width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border); margin: 1.5rem 0; display: block; }
+    p { margin: 1rem 0; font-size: 0.95rem; }
+    code { color: var(--code-green); background: #181818; padding: 0.2rem 0.4rem; border-radius: 4px; font-size: 0.9em; }
+    pre { background: var(--card-bg); border: 1px solid var(--border); padding: 1.2rem; border-radius: 8px; overflow-x: auto; color: var(--accent); font-size: 0.85rem; margin: 1rem 0; }
+    .callout { background: #161616; border-left: 3px solid #ff4444; padding: 1rem; margin: 1rem 0; border-radius: 0 6px 6px 0; font-size: 0.88rem; }
+    ul { padding-left: 1.2rem; }
+    li { margin-bottom: 0.5rem; font-size: 0.95rem; }
+    footer { border-top: 1px solid var(--border); margin-top: 3rem; padding-top: 1.5rem; font-size: 0.8rem; color: var(--text-muted); }
+    footer a { color: var(--code-green); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
-  <h1>Gobernanza Edge Soberana: Administrando Workers sin Wrangler en Termux</h1>
-  <div class="meta">Publicado por Cristhiam Leonardo Hernández Quiñonez (CLHQ) · Agosto 2026 · Nodo A16-SanMiguel-SV</div>
+  <article>
+    <h1>Gobernanza Edge Soberana: Administrando Workers sin Wrangler en Termux</h1>
+    <div class="meta">Por <strong>Cristhiam Leonardo Hernández Quiñonez (CLHQ)</strong> · Agosto 2026 · Nodo A16-SanMiguel-SV</div>
 
-  <img src="../assets/hormigasais-edge-team.png" alt="Equipo HormigasAIS - Edge Computing" />
+    <img src="../assets/hormigasais-edge-team.png" alt="Equipo HormigasAIS - Edge Computing" class="main-img" />
 
-  <p>En el desarrollo tradicional para Cloudflare Workers, la industria asume la necesidad de CLI oficiales como <code>wrangler</code>. Sin embargo, en entornos móviles de borde (Android/Termux ARM64), la emulación local de miniflare/workerd falla debido a la ausencia de entorno <code>glibc</code>.</p>
+    <p>En las arquitecturas convencionales sobre Cloudflare Workers, los flujos de desarrollo dependen estrictamente de utilidades CLI oficiales como <code>wrangler</code>. No obstante, al desplegar nodos soberanos en entornos móviles de borde (Android ARM64 vía Termux), la emulación local sobre <code>miniflare</code>/<code>workerd</code> falla de manera crítica al no existir un entorno ejecutable bajo <code>glibc</code>.</p>
 
-  <h2>1. Causa Raíz: Incompatibilidad Bionic vs. glibc</h2>
-  <p>Al ejecutar emulación local (<code>npx wrangler dev</code> v3.x bajo Node.js v20+ ARM64), Wrangler intenta arrancar el binario precompilado de <code>workerd</code>. Al estar enlazado dinámicamente contra GNU <code>glibc</code>, la ejecución colapsa en la biblioteca C nativa de Android (<strong><code>bionic</code></strong>).</p>
+    <h2>1. Causa Raíz: Incompatibilidad Bionic vs. glibc</h2>
+    <p>Al intentar invocar el entorno de pruebas local (<code>npx wrangler dev</code> v3.x en Node.js v20+ ARM64), Wrangler intenta levantar el binario nativo precompilado de <code>workerd</code>. Al estar enlazado dinámicamente contra la biblioteca C de GNU (<code>glibc</code>), la ejecución colapsa inmediatamente sobre el runtime C nativo de Android (<strong><code>bionic</code></strong>).</p>
 
-  <div class="callout">
-    <strong>Error de emulación local en Termux ARM64:</strong><br>
-    <code>$ npx wrangler dev</code><br>
-    <code>[ERROR] Failed to start workerd: Error: /data/data/com.termux/files/usr/lib/libc.so: version 'GLIBC_2.34' not found</code>
-  </div>
+    <div class="callout">
+      <strong>Error de emulación local en Termux ARM64:</strong><br>
+      <code>$ npx wrangler dev</code><br>
+      <code>[ERROR] Failed to start workerd: Error: /data/data/com.termux/files/usr/lib/libc.so: version 'GLIBC_2.34' not found</code>
+    </div>
 
-  <h2>2. Despliegue Directo vía API REST v4 (Multipart)</h2>
-  <p>Eludimos la necesidad del entorno de emulación local subiendo el bundle JS directamente al plano de control de Cloudflare mediante la API v4 estructurada en <code>multipart/form-data</code>.</p>
+    <h2>2. Despliegue Directo vía API REST v4 (Multipart)</h2>
+    <p>Eludimos completamente el runtime local subiendo el bundle procesado en JavaScript directamente al plano de control de Cloudflare mediante la API REST v4 estructurada bajo el estándar <code>multipart/form-data</code>.</p>
 
-  <pre>
+    <pre>
 # A. Subida del bundle del Worker (ES Modules)
 curl --fail-with-body --silent --show-error \
   -X PUT "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/workers/scripts/$CF_WORKER_NAME/content" \
@@ -48,21 +73,20 @@ SECRET_PAYLOAD=$(jq -n --arg val "$VALUE" '{"name":"MASTER_SEAL_KEY","text":$val
 curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/workers/scripts/$CF_WORKER_NAME/secrets" \
   -H "Authorization: Bearer $CF_API_TOKEN" \
   -H "Content-Type: application/json" \
-  --data "$SECRET_PAYLOAD"
-  </pre>
+  --data "$SECRET_PAYLOAD"</pre>
 
-  <h2>3. Modelo Criptográfico: Firma Local vs. Verificación en Edge</h2>
-  <p>Es indispensable distinguir entre la custodia de llaves y la firma de paquetes:</p>
-  <ul>
-    <li><strong>Firma Local (Nodo Soberano):</strong> Los payloads LBH se firman criptográficamente dentro del dispositivo Termux utilizando la clave privada almacenada en <code>~/.hormigas_secrets</code> (protegido con permisos <code>0600</code> y sandboxing UID de Android).</li>
-    <li><strong>Verificación Edge (Cloudflare Worker):</strong> El Worker en el Edge almacena únicamente el secreto de verificación para validar la autenticidad del paquete recibido antes de procesarlo, manteniendo la clave de origen aislada en el nodo.</li>
-  </ul>
+    <h2>3. Modelo Criptográfico: Firma Local vs. Verificación en Edge</h2>
+    <p>Para asegurar un esquema Zero-Trust distribuido, establecemos un desacoplamiento estricto entre la custodia de secretos y la verificación:</p>
+    <ul>
+      <li><strong>Firma Local (Nodo Soberano):</strong> Los payloads LBH se firman criptográficamente dentro del entorno aislado de Termux usando la clave privada resguardada en <code>~/.hormigas_secrets</code> (protegida con permisos <code>0600</code> y sandboxing de UID en Android).</li>
+      <li><strong>Verificación Edge (Cloudflare Worker):</strong> El Worker desplegado en el Edge almacena exclusivamente el secreto o clave pública de verificación para certificar el paquete entrante antes de autorizarlo, aislando la firma de origen de cualquier vector de exposición externa.</li>
+    </ul>
+  </article>
 
-  <hr style="border-color:#222; margin-top:2rem;">
-  <p style="font-size:0.8rem; color:#666;">
+  <footer>
     CERT::LBH-BLOG-POST-01-REV3 | 
-    <a href="https://docs.hormigasais.com/infraestructura.html" style="color:#00ff9f; text-decoration:none;">Docs::Infraestructura Edge</a> | 
-    <a href="https://hormigasais.com" style="color:#888; text-decoration:none;">hormigasais.com</a>
-  </p>
+    <a href="https://docs.hormigasais.com/infraestructura.html">Docs::Infraestructura Edge</a> | 
+    <a href="https://hormigasais.com">HormigasAIS</a>
+  </footer>
 </body>
 </html>

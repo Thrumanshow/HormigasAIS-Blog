@@ -31,9 +31,13 @@
     code { color: var(--code-green); background: #181818; padding: 0.2rem 0.4rem; border-radius: 4px; font-size: 0.9em; }
     pre { background: var(--card-bg); border: 1px solid var(--border); padding: 1.2rem; border-radius: 8px; overflow-x: auto; color: var(--accent); font-size: 0.85rem; margin: 1rem 0; }
     .callout { background: #161616; border-left: 3px solid #ff4444; padding: 1rem; margin: 1rem 0; border-radius: 0 6px 6px 0; font-size: 0.88rem; }
-    ul { padding-left: 1.2rem; }
+    .callout.info { border-left-color: var(--accent); }
+    ul, ol { padding-left: 1.2rem; }
     li { margin-bottom: 0.5rem; font-size: 0.95rem; }
-    footer { border-top: 1px solid var(--border); margin-top: 3rem; padding-top: 1.5rem; font-size: 0.8rem; color: var(--text-muted); }
+    .references { margin-top: 2.5rem; border-top: 1px solid var(--border); padding-top: 1.5rem; }
+    .references a { color: var(--code-green); text-decoration: none; }
+    .references a:hover { text-decoration: underline; }
+    footer { border-top: 1px solid var(--border); margin-top: 2rem; padding-top: 1.5rem; font-size: 0.8rem; color: var(--text-muted); }
     footer a { color: var(--code-green); text-decoration: none; }
     footer a:hover { text-decoration: underline; }
   </style>
@@ -75,12 +79,40 @@ curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/wor
   -H "Content-Type: application/json" \
   --data "$SECRET_PAYLOAD"</pre>
 
+    <div class="callout info">
+      <strong>Alcance del ejemplo.</strong><br>
+      Este comando muestra la publicación de un Worker ESM sencillo de un solo módulo. Si el proyecto utiliza bindings, módulos auxiliares, assets, KV, D1, R2 o Durable Objects, la metadata y las partes multipart deben adaptarse a esos recursos.
+    </div>
+
     <h2>3. Modelo Criptográfico: Firma Local vs. Verificación en Edge</h2>
     <p>Para asegurar un esquema Zero-Trust distribuido, establecemos un desacoplamiento estricto entre la custodia de secretos y la verificación:</p>
     <ul>
       <li><strong>Firma Local (Nodo Soberano):</strong> Los payloads LBH se firman criptográficamente dentro del entorno aislado de Termux usando la clave privada resguardada en <code>~/.hormigas_secrets</code> (protegida con permisos <code>0600</code> y sandboxing de UID en Android).</li>
       <li><strong>Verificación Edge (Cloudflare Worker):</strong> El Worker desplegado en el Edge almacena exclusivamente el secreto o clave pública de verificación para certificar el paquete entrante antes de autorizarlo, aislando la firma de origen de cualquier vector de exposición externa.</li>
     </ul>
+
+    <section class="references" aria-labelledby="references-title">
+      <h2 id="references-title">Referencias técnicas</h2>
+      <ol>
+        <li>
+          Cloudflare API. 
+          <a href="https://developers.cloudflare.com/api/resources/workers/subresources/scripts/subresources/content/methods/update/" target="_blank" rel="noopener noreferrer">
+            Actualización del contenido de un Worker
+          </a>.
+        </li>
+        <li>
+          Cloudflare API. 
+          <a href="https://developers.cloudflare.com/api/resources/workers/subresources/scripts/subresources/secrets/methods/update/" target="_blank" rel="noopener noreferrer">
+            Actualización de secretos de un Worker
+          </a>.
+        </li>
+        <li>
+          <a href="https://docs.hormigasais.com/infraestructura.html" target="_blank" rel="noopener noreferrer">
+            Documentación de infraestructura de HormigasAIS
+          </a>.
+        </li>
+      </ol>
+    </section>
   </article>
 
   <footer>

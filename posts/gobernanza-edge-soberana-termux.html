@@ -28,17 +28,18 @@
     <code>[ERROR] Failed to start workerd: Error: /data/data/com.termux/files/usr/lib/libc.so: version 'GLIBC_2.34' not found</code>
   </div>
 
-  <h2>2. Desacoplamiento vía API REST v4</h2>
-  <p>Para eludir la barrera de compilación, reemplazamos la abstracción de Wrangler por el plano de control directo de la API REST v4 de Cloudflare usando HTTP y POSIX Shell.</p>
+  <h2>2. Desacoplamiento vía API REST v4 (Multipart Upload)</h2>
+  <p>Para desplegar código en producción sin depender de Wrangler, consumimos directamente el endpoint <code>/content</code> de la API REST v4 de Cloudflare utilizando peticiones <code>multipart/form-data</code> con metadatos de módulo ESM.</p>
 
   <pre>
-# A. Subida directa del bundle JavaScript (worker.js)
-curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/workers/scripts/$CF_WORKER_NAME" \
+# A. Subida del bundle del Worker (ES Modules / main_module)
+curl --fail-with-body --silent --show-error \
+  -X PUT "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/workers/scripts/$CF_WORKER_NAME/content" \
   -H "Authorization: Bearer $CF_API_TOKEN" \
-  -H "Content-Type: application/javascript" \
-  --data-binary "@dist/worker.js"
+  -F 'metadata={"main_module":"worker.js"};type=application/json' \
+  -F 'worker.js=@dist/worker.js;type=application/javascript+module'
 
-# B. Inyección atómica de secretos al Edge
+# B. Inyección atómica de secretos al Edge (JSON Body)
 curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/workers/scripts/$CF_WORKER_NAME/secrets" \
   -H "Authorization: Bearer $CF_API_TOKEN" \
   -H "Content-Type: application/json" \
@@ -49,6 +50,6 @@ curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/wor
   <p>En lugar de delegar el manejo de claves secretas a entornos de desarrollo de terceros, las claves maestras (<code>LBH_SECRET</code>) se resguardan localmente en <code>~/.hormigas_secrets</code> protegido con permisos <code>0600</code> (POSIX DAC) y bajo el sandboxing estricto por UID de Android. Si bien no constituye un HSM basado en hardware (TEE), este esquema garantiza que la firma criptográfica permanezca bajo control local directo antes de su transmisión cifrada al Edge.</p>
 
   <hr style="border-color:#222; margin-top:2rem;">
-  <p style="font-size:0.8rem; color:#666;">CERT::LBH-BLOG-POST-01-REV1 | <a href="https://hormigasais.com" style="color:#888;">hormigasais.com</a></p>
+  <p style="font-size:0.8rem; color:#666;">CERT::LBH-BLOG-POST-01-REV2 | <a href="https://hormigasais.com" style="color:#888;">hormigasais.com</a></p>
 </body>
 </html>

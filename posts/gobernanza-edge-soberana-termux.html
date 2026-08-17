@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gobernanza Edge Soberana desde Termux | Blog HormigasAIS</title>
+  <style>
+    body { background: #0a0a0a; color: #e8e8e8; font-family: 'Space Mono', monospace; padding: 2rem; max-width: 800px; margin: 0 auto; }
+    h1 { color: #f5c518; }
+    code { color: #00ff9f; background: #111; padding: 0.2rem 0.4rem; border-radius: 4px; }
+    pre { background: #111; border: 1px solid #222; padding: 1rem; border-radius: 8px; overflow-x: auto; color: #f5c518; }
+    .meta { color: #666; font-size: 0.8rem; margin-bottom: 2rem; }
+  </style>
+</head>
+<body>
+  <h1>Gobernanza Edge Soberana: Administrando Workers sin Wrangler en Termux</h1>
+  <div class="meta">Publicado por Cristhiam Leonardo Hernández Quiñonez (CLHQ) · Agosto 2026 · Nodo A16-SanMiguel-SV</div>
+
+  <p>En el desarrollo tradicional para Cloudflare Workers, la industria asume la necesidad de entornos de escritorio x86_64 corriendo Node.js y la CLI oficial <code>wrangler</code>. Sin embargo, al operar infraestructura desde dispositivos móviles (Android/Termux ARM64), las dependencias nativas como <code>workerd</code> se convierten en un punto de bloqueo.</p>
+
+  <h2>El Patrón REST-First</h2>
+  <p>En lugar de subordinar la operación a herramientas de escritorio, desacoplamos la administración utilizando la API REST v4 nativa de Cloudflare mediante peticiones atómicas con <code>curl</code> y POSIX Shell.</p>
+
+  <pre>
+# Inyección directa de secretos al Edge sin depender de Wrangler
+curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/workers/scripts/$CF_WORKER_NAME/secrets" \
+  -H "Authorization: Bearer $CF_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data "{\"name\":\"MASTER_SEAL_KEY\",\"text\":\"$VALUE\",\"type\":\"secret_text\"}"
+  </pre>
+
+  <h2>Soberanía de Claves y Zero-Trust</h2>
+  <p>Las claves criptográficas maestras (<code>LBH_SECRET</code>, <code>MASTER_SEAL_KEY</code>) residen exclusivamente en una bóveda local (<code>~/.hormigas_secrets</code>) bajo permisos <code>0600</code> a nivel de kernel en el dispositivo móvil, actuando como un HSM de software. La nube actúa únicamente como plano de ejecución pública, mientras que el control permanece en el borde.</p>
+
+  <hr style="border-color:#222; margin-top:2rem;">
+  <p style="font-size:0.8rem; color:#666;">CERT::LBH-BLOG-POST-01 | <a href="https://hormigasais.com" style="color:#888;">hormigasais.com</a></p>
+</body>
+</html>

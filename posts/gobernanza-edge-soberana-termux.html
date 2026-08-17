@@ -9,6 +9,7 @@
     h1 { color: #f5c518; }
     code { color: #00ff9f; background: #111; padding: 0.2rem 0.4rem; border-radius: 4px; }
     pre { background: #111; border: 1px solid #222; padding: 1rem; border-radius: 8px; overflow-x: auto; color: #f5c518; font-size: 0.85rem; }
+    img { max-width: 100%; height: auto; border-radius: 8px; border: 1px solid #222; margin: 1.5rem 0; display: block; }
     .meta { color: #666; font-size: 0.8rem; margin-bottom: 2rem; }
     .callout { background: #181818; border-left: 3px solid #f5c518; padding: 0.8rem; margin: 1rem 0; font-size: 0.9rem; }
   </style>
@@ -16,6 +17,8 @@
 <body>
   <h1>Gobernanza Edge Soberana: Administrando Workers sin Wrangler en Termux</h1>
   <div class="meta">Publicado por Cristhiam Leonardo Hernández Quiñonez (CLHQ) · Agosto 2026 · Nodo A16-SanMiguel-SV</div>
+
+  <img src="../assets/hormigasais-edge-team.png" alt="Equipo HormigasAIS - Edge Computing" />
 
   <p>En el desarrollo tradicional para Cloudflare Workers, la industria asume la necesidad de CLI oficiales como <code>wrangler</code>. Sin embargo, en entornos móviles de borde (Android/Termux ARM64), la emulación local de miniflare/workerd falla debido a la ausencia de entorno <code>glibc</code>.</p>
 

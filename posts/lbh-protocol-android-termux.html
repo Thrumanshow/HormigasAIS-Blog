@@ -30,7 +30,7 @@
         <a href="https://github.com/Thrumanshow/HormigasAIS" target="_blank">github.com/Thrumanshow/HormigasAIS</a>
     </div>
 
-    <img src="../assets/cover-lbh-termux.png" alt="HormigasAIS LBH Protocol Cover" class="cover-img">
+    <img src="../assets/hardware-trampa-mosquitos-a16.png" alt="HormigasAIS LBH Protocol Cover" class="cover-img">
 
     <h2>1. The Problem: Depending on the Cloud to Validate What's Real</h2>
     <p>Most content-verification and edge-computing stacks today assume a baseline dependency: a cloud provider, a centralized API, or a third-party service sitting between your data and the claim that it's authentic. That dependency is convenient, but it's also a single point of failure and a single point of control.</p>
@@ -40,36 +40,24 @@
     <p>HormigasAIS approaches this with a node-based architecture rather than a service-based one. Three pieces anchor it:</p>
     <ul>
         <li><strong>LBH cryptographic sealing</strong> — content is sealed using SHA-256 + HMAC-SHA256, with signed verification that doesn't require calling out to a third party to confirm integrity.</li>
-        <li><code>barrera.js</code> — an ethical/logical filter layer (informally, "decromatiza") that sits between raw input and the system's accepted state.</li>
-        <li><code>humano.js</code> — a small symbolic module declaring the human-language layer of the project: <code>HormigasAIS = {{lenguaje-humano}}</code>. It's less a functional API and more a positioning statement embedded directly in code — a reminder that the system is meant to stay legible to a human reader, not just to a machine.</li>
+        <li><code>barrera.js</code> — an ethical/logical filter layer that sits between raw input and the system's accepted state.</li>
+        <li><code>humano.js</code> — a small symbolic module declaring the human-language layer of the project: <code>HormigasAIS = {{lenguaje-humano}}</code>.</li>
     </ul>
     <p>None of this requires a data center. The full development loop — writing, testing, sealing, deploying — happens from an Android device running Termux.</p>
 
     <h2>3. The Implementation: From a 404 to a Working Node</h2>
-    <p>The most concrete proof point is small on purpose. The repository <a href="https://github.com/Thrumanshow/HormigasAIS" target="_blank">Thrumanshow/HormigasAIS</a> started as a set of governance and symbolic files with no public-facing page — visiting its GitHub Pages URL returned a plain 404.</p>
-    <p>Getting it live took: enabling GitHub Pages from the <code>main</code> branch root, writing a minimal <code>index.html</code> (styled, ~19 lines of real content), and documenting the repo properly — <code>README.md</code>, <code>LICENSE</code> (MIT), <code>GOVERNANCE.md</code>, <code>STATUS.md</code>, and <code>MANIFIESTO.md</code>. The structure deliberately mirrors an earlier, simpler project of mine, <a href="https://github.com/Thrumanshow/Chris-BarberShop" target="_blank">Chris-BarberShop</a>, which proved the same pattern — a single clean <code>index.html</code> as a public entry point — works for something as unrelated as a local barbershop's digital presence. If the pattern holds at that scale, it holds for infrastructure documentation too.</p>
-    <p>The entire sequence — clone, edit, verify with <code>curl</code>, commit, push, confirm <code>200</code> — ran from Termux on a Samsung A16, no laptop involved.</p>
+    <p>The repository <a href="https://github.com/Thrumanshow/HormigasAIS" target="_blank">Thrumanshow/HormigasAIS</a> started as a set of governance files. Getting it live took: enabling GitHub Pages from the <code>main</code> branch root and documenting the repo properly (<code>README.md</code>, <code>LICENSE</code>, <code>GOVERNANCE.md</code>, <code>STATUS.md</code>, and <code>MANIFIESTO.md</code>).</p>
+    <p>The entire sequence — clone, edit, verify, commit, push — ran from Termux on a Samsung A16.</p>
 
     <h2>4. The Ecosystem: What's Actually Public</h2>
-    <p>To be precise about what's verifiable versus conceptual:</p>
-    <p><strong>Live and checkable:</strong></p>
     <ul>
         <li><a href="https://hormigasais.com" target="_blank">hormigasais.com</a> — main site</li>
         <li><a href="https://lbh.hormigasais.com" target="_blank">lbh.hormigasais.com</a> — LBH protocol site</li>
         <li><a href="https://api.hormigasais.com" target="_blank">api.hormigasais.com</a> — Worker API</li>
         <li><a href="https://docs.hormigasais.com" target="_blank">docs.hormigasais.com</a> — documentation</li>
         <li><a href="https://blog.hormigasais.com" target="_blank">blog.hormigasais.com</a> — blog</li>
-        <li>The formal LBH specification is deposited on Zenodo: <strong>DOI <a href="https://doi.org/10.5281/zenodo.17767205" target="_blank">10.5281/zenodo.17767205</a></strong></li>
+        <li>Zenodo DOI: <strong><a href="https://doi.org/10.5281/zenodo.17767205" target="_blank">10.5281/zenodo.17767205</a></strong></li>
     </ul>
-
-    <p><strong>Governance:</strong><br>
-    The project operates under an explicit <a href="https://github.com/Thrumanshow/HormigasAIS/blob/main/GOVERNANCE.md" target="_blank">GOVERNANCE.md</a>, which is worth flagging precisely because it's unusual for a solo project: it draws a hard line between forking/using the code (permitted under license) and any claim of official representation or node status (which requires explicit, written recognition from the maintainer of record). Forks are welcome. Authority isn't inherited by default.</p>
-
-    <p><strong>Still experimental:</strong><br>
-    The broader multi-agent decision system and node-validation layer are active work — not yet at the same level of external verifiability as the sealing protocol or the published spec, and I want to be upfront about that distinction rather than blur it.</p>
-
-    <hr style="border: 0; border-top: 1px solid #222; margin-top: 30px;">
-    <p><em>If you're building anything edge-first, protocol-level, or just skeptical of cloud dependency by default — I'd welcome the conversation.</em></p>
 
     <div class="footer-stamp">
         Emitido desde Nodo A16-SanMiguel-SV | Verificado bajo MANIFEST_TOKEN lbh v2

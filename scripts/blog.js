@@ -4,10 +4,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const posts = [
     'uroboro-tecnologico.html',
-    'protocolo-lbh-arquitectura.html',
     'arquitectura-soberana-agentes-autonomos.html',
     'perfil_cto_cristhiam.html',
-    'lbh-sdk-js-v031.html'
+    'lbh-sdk-js-v031.html',
+    'lbh-protocol-android-termux.html'
   ];
 
   for (const file of posts) {

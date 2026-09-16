@@ -7,7 +7,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     'arquitectura-soberana-agentes-autonomos.html',
     'perfil_cto_cristhiam.html',
     'lbh-sdk-js-v031.html',
-    'lbh-protocol-android-termux.html'
+    'lbh-protocol-android-termux.html',
+    'lbh-heartbeat-resilient-edge-agents.html'
   ];
 
   for (const file of posts) {

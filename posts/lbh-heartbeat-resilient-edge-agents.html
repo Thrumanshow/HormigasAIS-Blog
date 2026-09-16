@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Building Resilient Edge Agents with LBH: A PWA Heartbeat System Running on Android | HormigasAIS</title>
+<meta name="description" content="A resilient WebSocket heartbeat client for LBH edge agents, built and tested as an installed PWA on Android.">
+<link rel="stylesheet" href="../assets/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  .post-content { max-width: 800px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+  .post-content h1 { font-family: 'Syne', sans-serif; font-weight: 800; color: #f5c518; font-size: 1.5rem; margin-bottom: 0.5rem; }
+  .post-content h2 { font-family: 'Syne', sans-serif; color: #f5c518; font-size: 1.1rem; border-left: 3px solid #f5c518; padding-left: 10px; margin-top: 2rem; }
+  .post-content p, .post-content ul, .post-content li { color: #aaa; font-size: 0.88rem; line-height: 1.8; }
+  .post-content figure { margin: 1.5rem 0; }
+  .post-content img { width: 100%; border-radius: 8px; border: 1px solid #222; }
+  .post-content figcaption { color: #666; font-size: 0.75rem; font-style: italic; margin-top: 0.5rem; text-align: center; }
+  .post-content pre { background: #111; border: 1px solid #222; border-radius: 6px; padding: 1rem; overflow-x: auto; font-size: 0.78rem; color: #0f8; }
+  .post-content code { color: #0f8; }
+  .meta-tag { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: #00ff9f; }
+  .post-date { font-size: 0.75rem; color: #555; }
+  .firma-validacion { background: #111; border: 1px solid #f5c51833; border-left: 4px solid #f5c518; padding: 1rem; border-radius: 6px; margin: 1.5rem 0; font-size: 0.78rem; color: #f5c518; }
+  .tags-box { margin-top: 2rem; font-size: 0.72rem; color: #555; }
+  .note-box { background: #111; border: 1px solid #00ff9f33; border-left: 4px solid #00ff9f; padding: 1rem; border-radius: 6px; margin: 1.5rem 0; font-size: 0.85rem; color: #aaa; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="https://blog.hormigasais.com" style="font-family:'Syne',sans-serif;font-weight:800;color:#f5c518;text-decoration:none;">HormigasAIS</a>
+  <div style="display:flex;gap:1.5rem;">
+    <a href="https://hormigasais.com" style="font-size:0.78rem;color:#888;text-decoration:none;">Inicio</a>
+    <a href="https://docs.hormigasais.com" style="font-size:0.78rem;color:#888;text-decoration:none;">Docs</a>
+  </div>
+</nav>
+
+<article class="post-content">
+  <header style="text-align: center;">
+    <span class="meta-tag">EDGE COMPUTING & LBH PROTOCOL</span>
+    <h1>Building Resilient Edge Agents with LBH: A PWA Heartbeat System Running on Android</h1>
+    <p class="post-date">15 de septiembre de 2026 | Nodo A16-SanMiguel-SV</p>
+  </header>
+
+  <figure>
+    <img src="../assets/cover-lbh-resilient-agents.jpg" alt="Two hands reaching toward each other, one digital, one human">
+    <figcaption>Keeping the channel alive between human and edge node</figcaption>
+  </figure>
+
+  <p>Most edge demos look great on a laptop. They tend to fall apart the moment you put them on a real Android phone, switch apps, or lock the screen.</p>
+
+  <p>I'm currently building <strong>HormigasAIS</strong>, a lightweight edge architecture designed to run agents and services from constrained devices. One of the core pieces is a binary protocol called <strong>LBH (Lenguaje Binario HormigasAIS)</strong> and a small WebSocket client that keeps the channel alive under real mobile conditions.</p>
+
+  <p>This post shows the current state of that client — specifically the heartbeat + telemetry layer — a recent resilience improvement for Android background behavior, and what happened when I moved from a browser demo to an actual installed app on the phone.</p>
+
+  <h2>The Core: LBHHeartbeatAnt</h2>
+  <p>The client is a single class that manages:</p>
+  <ul>
+    <li>WebSocket connection to a local Edge Node (<code>ws://hostname:8765</code>)</li>
+    <li>Binary LBH frames</li>
+    <li>Heartbeat (pheromone) messages</li>
+    <li>Inactivity detection</li>
+    <li>Automatic reconnection</li>
+  </ul>
+
+  <p><strong>Key design decisions:</strong></p>
+  <ul>
+    <li>Binary frames start with magic bytes <code>LA</code> (<code>0x4C</code>, <code>0x41</code>)</li>
+    <li>Type <code>0x01</code> → Telemetry</li>
+    <li>Type <code>0x02</code> → Heartbeat / ACK (called "Feromona")</li>
+    <li>When the user is inactive for 30 seconds, the client enters a <code>HIBERNATING</code> state while keeping the socket open</li>
+    <li>Any user activity (click, touch, keydown…) "unfreezes" the channel</li>
+  </ul>
+
+  <p>Here's the essential part of the heartbeat emission:</p>
+  <pre><code>emitHeartbeatPheromone() {
+  if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
+
+  const buffer = new ArrayBuffer(16);
+  const view = new DataView(buffer);
+  view.setUint8(0, 0x4C); // L
+  view.setUint8(1, 0x41); // A
+  view.setUint8(2, 0x02); // Heartbeat / Feromona
+  view.setUint8(3, 0x01); // Standby flag
+  view.setUint32(4, 9999);
+  view.setUint32(8, 0);
+  view.setUint32(12, Math.floor(Date.now() / 1000));
+
+  this.ws.send(buffer);
+}</code></pre>
+
+  <p>Telemetry frames follow the same structure (type <code>0x01</code>) and carry a sensor ID + value.</p>
+
+  <h2>Real Runtime Behavior</h2>
+  <p>From the Edge Node logs you can see the system working:</p>
+  <pre><code>🐜 Trama 0x01 | Sensor=1001 | Val=600 | TS=1789366095
+⚠️  [AGENTE AUTÓNOMO] Alerta Sensor 1001 → Val=600
+🐜 Respuesta LBH enviada
+
+🐜 Trama 0x01 | Sensor=1001 | Val=400 | TS=1789366395
+🐜 Respuesta LBH enviada</code></pre>
+
+  <p>And the continuous heartbeat ACKs:</p>
+  <pre><code>❄️  Feromona 0x02 ACK (socket preservado)</code></pre>
+
+  <p>The UI on the phone simply shows a telemetry input and a green "Enviar Trama LBH" button. When the channel is healthy it displays "Canal Activo (Descongelado)".</p>
+
+  <h2>The Android Problem and the Fix</h2>
+  <p>Android browsers are aggressive. When the PWA goes to the background, the WebSocket is often killed without a clean <code>onclose</code> event. The normal 3-second reconnect timer is too slow for a good user experience.</p>
+
+  <p>I added a <code>visibilitychange</code> listener:</p>
+  <pre><code>setupVisibilityListener() {
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) return;
+
+    const isDead = !this.ws ||
+      this.ws.readyState === WebSocket.CLOSED ||
+      this.ws.readyState === WebSocket.CLOSING;
+
+    if (isDead) {
+      this._setState("OFFLINE", "🟡 Verificando canal tras reanudar...");
+    }
+    this.connect(); // safe to call repeatedly
+  });
+}</code></pre>
+
+  <p>Now, as soon as the user returns to the app, the client checks the socket state and reconnects immediately if needed.</p>
+
+  <div class="note-box">
+    <strong>Update — tested as a real installed app, not just a browser tab:</strong><br><br>
+    After writing the piece above, I installed the PWA directly on the Android device (using the browser's install prompt, not just a <code>localhost</code> tab) and tested it with split-screen: the app running in one pane, the Edge Node's live log in the other. With the screen locked or the app pushed to the background, the log kept showing <code>Feromona 0x02 ACK</code> entries continuously — confirming the socket survives backgrounding as an installed app, not only as an open tab.
+  </div>
+
+  <p><strong>A known rough edge, still open:</strong> switching visibility very quickly and repeatedly (fast app-switching) can occasionally log a "cliente conectado" entry before its matching "cliente desconectado" from the previous socket. The server handles both cleanly — no leaked connections, no corrupted frames — but the log ordering isn't strictly sequential in that edge case. It comes from a small gap in the <code>connect()</code> guard (it currently checks for <code>OPEN</code>/<code>CONNECTING</code> but not <code>CLOSING</code>). Tightening that is on the list.</p>
+
+  <p><strong>Also worth being upfront about:</strong> the current WebSocket server has no authentication layer. Any client on the same local network can send LBH frames to it. Fine for a local dev/demo node — not something to expose on a public network as-is.</p>
+
+  <h2>Current Focus</h2>
+  <p>This is still early-stage infrastructure. The goal is to turn these lightweight LBH agents into injectable services that universities and small/medium businesses (Pymes) can use without depending on heavy cloud stacks.</p>
+  <p>The entire development loop (coding, testing, sealing, deploying) happens from an Android device running Termux.</p>
+
+  <h2>What's Next</h2>
+  <ul>
+    <li>More formal agent decision layer</li>
+    <li>Cleaner packaging of the PWA + Node</li>
+    <li>Authentication for the Edge Node's WebSocket endpoint</li>
+    <li>Fixing the <code>CLOSING</code>-state race in the reconnect guard</li>
+    <li>Documentation and examples aimed at educational and SME use cases</li>
+  </ul>
+
+  <p>If you're working on edge systems, constrained devices, or protocol design and want to exchange notes, feel free to reach out.</p>
+
+  <div class="firma-validacion">
+    <strong>Firma de validación LBH:</strong><br>
+    <code>VALIDADO_ARTICULO_LBH_HEARTBEAT_20260915_CLHQ</code>
+  </div>
+
+  <div class="tags-box">
+    Tags: HormigasAIS, LBH Protocol, Edge Computing, Android, PWA, JavaScript, WebSocket
+  </div>
+
+  <p style="margin-top: 30px; color: #777; font-size: 0.85rem;">
+    <em>Built and tested on Node A16-SanMiguel-SV | Protocol + client: HormigasAIS</em>
+  </p>
+
+  <a href="../index.html" style="display:inline-block;margin-top:1rem;font-size:0.78rem;color:#555;text-decoration:none;">Volver al blog</a>
+</article>
+</body>
+</html>

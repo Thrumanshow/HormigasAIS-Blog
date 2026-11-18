@@ -7,7 +7,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     'protocolo-lbh-arquitectura.html',
     'arquitectura-soberana-agentes-autonomos.html',
     'perfil_cto_cristhiam.html',
-    'lbh-sdk-js-v031.html'
+    'lbh-sdk-js-v031.html',
+    'baldor-de-la-habana-a-latinoamerica.html'
   ];
 
   for (const file of posts) {

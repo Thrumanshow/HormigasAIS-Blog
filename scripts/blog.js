@@ -8,7 +8,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     'perfil_cto_cristhiam.html',
     'lbh-sdk-js-v031.html',
     'lbh-protocol-android-termux.html',
-    'lbh-heartbeat-resilient-edge-agents.html'
+    'lbh-heartbeat-resilient-edge-agents.html',
+    'baldor-de-la-habana-a-latinoamerica.html'
   ];
 
   for (const file of posts) {
